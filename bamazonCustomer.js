@@ -79,16 +79,14 @@ function checkStock(on_stock, buy_quantity, price, item_id)
         console.log(`Your total amount is $${total_price}.\nThank you for your purchase on BAMAZON!`);
         // updates database
         updateStock(buy_quantity, item_id);
-    } 
-    else 
+    } else 
     {
         console.log(`Insufficient quantity on stock!\nOnly ${on_stock} items on stock!`);
         connection.end();
     }
 }
 
-function updateStock(quantity, item_id) 
-{
+function updateStock(quantity, item_id) {
     var query = "UPDATE products SET stock_quantity = stock_quantity - ? WHERE ?";
     connection.query(
         query,
@@ -98,8 +96,7 @@ function updateStock(quantity, item_id)
                 item_id: item_id
             }
         ],
-        function (error) 
-        {
+        function (error) {
             if (error) throw error;
             console.log("DB was succefully updated!");
             connection.end();
