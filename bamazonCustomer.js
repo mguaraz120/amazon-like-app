@@ -76,7 +76,7 @@ function checkStock(on_stock, buy_quantity, price, item_id)
     if (on_stock >= buy_quantity) 
     {
         let total_price = buy_quantity * price;
-        console.log(`Your total amount is $${total_price}.\nThank you for your purchase on BAMAZON!`);
+        console.log(`Your total amount is $${total_price.toFixed(2)}.\nThank you for your purchase on BAMAZON!`);
         // updates database
         updateStock(buy_quantity, item_id);
     } else 
