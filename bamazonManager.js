@@ -15,14 +15,16 @@ var connection = mysql.createConnection({
 });
 
 // makes connection with the server
-connection.connect(function (err) {
+connection.connect(function (err) 
+{
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
     chooseMenu();
 });
 
 // manager chooses a from a menu list
-function chooseMenu() {
+function chooseMenu() 
+{
     inquirer
         .prompt({
             name: "menu",
@@ -36,19 +38,21 @@ function chooseMenu() {
                 "Exit Manager View"
             ]
         })
-        .then(function (answer) {
+        .then(function (answer) 
+        {
             // console.log(answer);
-            switch (answer.menu) {
+            switch (answer.menu) 
+            {
                 case "View Products for Sale":
-                    displayItemsForSale();
+                    itemsForSale();
                     break;
 
                 case "View Low Inventory":
-                    displayLowInventory();
+                    lowInventory();
                     break;
 
                 case "Add to Inventory":
-                    displayItemsForSale(addToInvetory);
+                    itemsForSale(addToInvetory);
                     break;
 
                 case "Add New Product":
@@ -62,17 +66,20 @@ function chooseMenu() {
         })
 }
 // displays low invetory when requested
-function displayItemsForSale(func) {
+function itemsForSale(func) 
+{
     connection.query(
         "SELECT item_id, product_name, price, stock_quantity, department_name " +
         "FROM products " +
-        "WHERE price > 0;", function (err, result) {
+        "WHERE price > 0;", function (err, result) 
+    {
 
         if (err) throw err;
         // gets and builds the table header
         var selection = result[0];
         var header = [];
-        for (var product in selection) {
+        for (var product in selection) 
+        {
             header.push(product);
         }
 
@@ -84,32 +91,39 @@ function displayItemsForSale(func) {
 
         // gets and sets the data in the table
         var item_ids = [];
-        for (var i = 0; i < result.length; i++) {
+        for (var i = 0; i < result.length; i++) 
+        {
             item_ids.push(result[i].item_id);
             table.push([result[i].item_id, result[i].product_name, result[i].price.toFixed(2),
             result[i].stock_quantity, result[i].department_name]);
         }
         var output = table.toString();
         console.log(output);
-        if (func) {
+        if (func) 
+        {
             func(item_ids);
-        } else {
+        } 
+        else 
+        {
             chooseMenu();
         }
     });
 }
 
 // displays low inventory (stock lower or equal than 5) when requested 
-function displayLowInventory() {
+function lowInventory() 
+{
     connection.query(
         "SELECT item_id, stock_quantity " +
         "FROM products " +
-        "WHERE stock_quantity <= 5;", function (err, result) {
+        "WHERE stock_quantity <= 5;", function (err, result) 
+    {
 
         // console.log(err)
         var obj = result[0];
         var header = [];
-        for (var prop in obj) {
+        for (var prop in obj) 
+        {
             header.push(prop);
         }
 
@@ -119,7 +133,8 @@ function displayLowInventory() {
             colWidths: [15, 10]
         });
 
-        for (var i = 0; i < result.length; i++) {
+        for (var i = 0; i < result.length; i++) 
+        {
             table.push([result[i].item_id, result[i].stock_quantity]);
         }
         var output = table.toString();
@@ -127,3 +142,42 @@ function displayLowInventory() {
         chooseMenu();
     });
 }
+
+// funtion adds to inventory
+function addToInvetory(list) 
+{
+    inquirer
+        .prompt([
+        {
+            name: "action",
+            type: "list",
+            message: "Select item:",
+            choices: list
+        },
+        {
+            name: "quantity",
+            type: "input",
+            message: "Update quantity with:",
+        }])
+        .then(function (answer) 
+        {
+            updateQuantity(answer.action, answer.quantity);
+        })
+}
+
+function updateQuantity(item, quant) 
+{
+    var query = "UPDATE products SET stock_quantity = stock_quantity + ? WHERE ?"
+    connection.query(
+        query,
+        [quant,{item_id: item}],
+        function (err, res) 
+        {
+            if (err) throw err;
+            console.log("DB has been updated!");
+            chooseMenu();
+        }
+    );
+}
+
+// prompts for adding new item
